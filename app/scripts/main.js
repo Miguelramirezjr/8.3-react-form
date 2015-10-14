@@ -1,11 +1,3 @@
-var contacts = [
-    {key: 1, name: "James K Nelson", email: "james@jamesknelson.com", description: "Front-end Unicorn"},
-    {key: 2, name: "Jim", email: "jim@example.com"},
-    {key: 3, name: "Joe"},
-];
-
-var newContact = {name: "", email: "", description: ""};
-
 var ContactItem = React.createClass({
   propTypes: {
     name: React.PropTypes.string.isRequired,
@@ -26,32 +18,70 @@ var ContactItem = React.createClass({
 
 var ContactForm = React.createClass({
   propTypes: {
-    contact: React.PropTypes.object.isRequired
+    contact: React.PropTypes.object.isRequired,
+    onContactChanged: React.PropTypes.func.isRequired
+  },
+
+  handleContactChanged(prop, e) {
+    var oldContact = this.props.contact;
+    var newData = {};
+    newData[prop] = e.target.value;
+    var newContact = _.extend({}, oldContact, newData);
+    this.props.onContactChanged(newContact);
   },
 
   render() {
     return (
       <form className="ContactForm">
-        <input type="text" placeholder="Name (required)" value={this.props.contact.name} />
-        <input type="email" placeholder="Email" value={this.props.contact.email} />
-        <textarea placeholder="Description" value={this.props.contact.description}></textarea>
+        <input onChange={this.handleContactChanged.bind(this, 'name')} type="text" placeholder="Name (required)" value={this.props.contact.name} />
+        <input onChange={this.handleContactChanged.bind(this, 'email')} type="email" placeholder="Email" value={this.props.contact.email} />
+        <textarea onChange={this.handleContactChanged.bind(this, 'description')} placeholder="Description" value={this.props.contact.description}></textarea>
         <button type="submit">Add Contact</button>
       </form>
     );
   }
 });
 
-var listElements = contacts
-  .filter((c) => c.email)
-  .map((contact) => <ContactItem {...contact} />);
+var ContactsComponent = React.createClass({
+  propTypes: {
+    initialContacts: React.PropTypes.array.isRequired
+  },
 
-var rootElement =
-  <div>
-    <h1>Hello</h1>
-    <ul>
-      {listElements}
-    </ul>
-    <ContactForm contact={newContact} />
-  </div>
+  getInitialState() {
+    return {
+      newContact: {name: "", email: "", description: ""},
+      contacts: this.props.initialContacts
+    };
+  },
 
-ReactDOM.render(rootElement, document.getElementById('container'));
+  contactChanged(contact) {
+    this.setState({
+      newContact: contact
+    });
+  },
+
+  render() {
+
+    return (
+      <div>
+        <h1>Hello</h1>
+        <ul>
+          {
+            this.state.contacts
+              .filter((c) => c.email)
+              .map((contact) => <ContactItem {...contact} />)
+          }
+        </ul>
+        <ContactForm contact={this.state.newContact} onContactChanged={this.contactChanged}/>
+      </div>
+    );
+  }
+});
+
+var contacts = [
+    {key: 1, name: "James K Nelson", email: "james@jamesknelson.com", description: "Front-end Unicorn"},
+    {key: 2, name: "Jim", email: "jim@example.com"},
+    {key: 3, name: "Joe"},
+];
+
+ReactDOM.render(<ContactsComponent initialContacts={contacts} />, document.getElementById('container'));
