@@ -18,7 +18,8 @@ var ContactItem = React.createClass({
 
 var ContactForm = React.createClass({
   propTypes: {
-    initialContact: React.PropTypes.object.isRequired
+    initialContact: React.PropTypes.object.isRequired,
+    onSaveContact: React.PropTypes.func.isRequired
   },
 
   getInitialState() {
@@ -33,9 +34,16 @@ var ContactForm = React.createClass({
     });
   },
 
+  saveContact(e) {
+    e.preventDefault();
+    this.props.onSaveContact(this.state.contact);
+  },
+
   render() {
     return (
-      <form className="ContactForm">
+      <form className="ContactForm"
+        onSubmit={this.saveContact}>
+
         <input
           onChange={this.handleContactChanged.bind(this, 'name')}
           type="text" placeholder="Name (required)"
@@ -67,6 +75,10 @@ var ContactsComponent = React.createClass({
     };
   },
 
+  createContact(contact) {
+    console.log(contact);
+  },
+
   render() {
     return (
       <div>
@@ -78,7 +90,7 @@ var ContactsComponent = React.createClass({
               .map((contact) => <ContactItem {...contact} />)
           }
         </ul>
-        <ContactForm initialContact={this.state.newContact} />
+        <ContactForm initialContact={this.state.newContact} onSaveContact={this.createContact} />
       </div>
     );
   }
