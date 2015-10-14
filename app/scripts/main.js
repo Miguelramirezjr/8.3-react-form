@@ -18,24 +18,37 @@ var ContactItem = React.createClass({
 
 var ContactForm = React.createClass({
   propTypes: {
-    contact: React.PropTypes.object.isRequired,
-    onContactChanged: React.PropTypes.func.isRequired
+    initialContact: React.PropTypes.object.isRequired
+  },
+
+  getInitialState() {
+    return {
+      contact: this.props.initialContact
+    };
   },
 
   handleContactChanged(prop, e) {
-    var oldContact = this.props.contact;
-    var newData = {};
-    newData[prop] = e.target.value;
-    var newContact = _.extend({}, oldContact, newData);
-    this.props.onContactChanged(newContact);
+    this.setState({
+      contact: _.extend({}, this.state.contact, _.object([prop], [e.target.value]))
+    });
   },
 
   render() {
     return (
       <form className="ContactForm">
-        <input onChange={this.handleContactChanged.bind(this, 'name')} type="text" placeholder="Name (required)" value={this.props.contact.name} />
-        <input onChange={this.handleContactChanged.bind(this, 'email')} type="email" placeholder="Email" value={this.props.contact.email} />
-        <textarea onChange={this.handleContactChanged.bind(this, 'description')} placeholder="Description" value={this.props.contact.description}></textarea>
+        <input
+          onChange={this.handleContactChanged.bind(this, 'name')}
+          type="text" placeholder="Name (required)"
+          value={this.state.contact.name} />
+        <input
+          onChange={this.handleContactChanged.bind(this, 'email')}
+          type="email"
+          placeholder="Email"
+          value={this.state.contact.email} />
+        <textarea
+          onChange={this.handleContactChanged.bind(this, 'description')}
+          placeholder="Description"
+          value={this.state.contact.description}></textarea>
         <button type="submit">Add Contact</button>
       </form>
     );
@@ -54,14 +67,7 @@ var ContactsComponent = React.createClass({
     };
   },
 
-  contactChanged(contact) {
-    this.setState({
-      newContact: contact
-    });
-  },
-
   render() {
-
     return (
       <div>
         <h1>Hello</h1>
@@ -72,7 +78,7 @@ var ContactsComponent = React.createClass({
               .map((contact) => <ContactItem {...contact} />)
           }
         </ul>
-        <ContactForm contact={this.state.newContact} onContactChanged={this.contactChanged}/>
+        <ContactForm initialContact={this.state.newContact} />
       </div>
     );
   }
